@@ -1,0 +1,14 @@
+spring:
+  profiles:
+    active: ${PROFILE}
+  data:
+    mongodb:
+      authentication-database: ${DB_AUTH}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      database: ${DB_NAME}
+      port: ${DB_PORT}
+      host: ${DB_HOST}
+
+url: ${URL}
+bcb-url: ${BCB_API}
