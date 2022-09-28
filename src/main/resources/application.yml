@@ -12,3 +12,12 @@ spring:
 
 url: ${URL}
 bcb-url: ${BCB_API}
+
+logging:
+  level:
+    com:
+      installments:
+        calculator:
+          client:
+            CalculatorClient: DEBUG
+            BcbClient: DEBUG

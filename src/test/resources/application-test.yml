@@ -15,3 +15,12 @@ spring:
 
 url: http://localhost:8082/
 bcb-url: ${BCB_API}
+
+logging:
+  level:
+    com:
+      installments:
+        calculator:
+          client:
+            CalculatorClient: DEBUG
+            BcbClient: DEBUG
