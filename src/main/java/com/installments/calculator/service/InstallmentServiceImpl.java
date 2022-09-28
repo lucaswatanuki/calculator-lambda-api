@@ -32,36 +32,29 @@ public class InstallmentServiceImpl implements InstallmentService{
 
     @Override
     public List<InstallmentDto> getInstallments(BigDecimal value, LocalDate startDate, int installments) {
-        final LocalDate endDate = startDate.plusMonths(installments);
+        final LocalDate endDate = startDate.plusMonths(installments > 0 ? installments - 1 : 0);
 
-        List<BcbDto> poupancaTax = bcbClient.getTaxFromBcB(TAXA_POUPANCA,
-                "json",
-                startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        final List<BcbDto> savingRateTax = getSavingRateTax(TAXA_POUPANCA, startDate, endDate);
+        final List<BcbDto> trTax = getSavingRateTax(TAXA_TR, startDate, endDate);
 
-        List<BcbDto> trTax = bcbClient.getTaxFromBcB(TAXA_TR,
-                "json",
-                startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-
-        List<InstallmentDto> parcelasPorMes = poupancaTax.stream()
+        final List<InstallmentDto> monthlyInstallments = savingRateTax.stream()
                 .filter(isFirstDay)
                 .map(taxaDto -> InstallmentDto.builder()
                         .year(taxaDto.getData().getYear())
                         .month(taxaDto.getData().getMonth()
                                 .getDisplayName(TextStyle.FULL, new Locale("pt", "BR"))
                                 .toUpperCase())
-                        .poupanca(taxaDto.getValor().movePointLeft(2))
+                        .savingRate(taxaDto.getValor().movePointLeft(2))
                         .build())
                 .collect(Collectors.toList());
 
-        for (int i = 0; i < parcelasPorMes.size(); i++) {
+        for (int i = 0; i < monthlyInstallments.size(); i++) {
             if (i == 0) {
-                parcelasPorMes.get(i)
+                monthlyInstallments.get(i)
                         .setTr(trTax.get(0).getValor());
-                parcelasPorMes.get(i).setTotal(value
-                        .add(parcelasPorMes.get(i)
-                                .getPoupanca()
+                monthlyInstallments.get(i).setTotal(value
+                        .add(monthlyInstallments.get(i)
+                                .getSavingRate()
                                 .multiply(value)
                                 .add(trTax.get(0)
                                         .getValor()
@@ -69,12 +62,12 @@ public class InstallmentServiceImpl implements InstallmentService{
                                         .multiply(value)))
                         .setScale(2, RoundingMode.HALF_EVEN));
             } else {
-                parcelasPorMes.get(i)
+                monthlyInstallments.get(i)
                         .setTr(trTax.get(i).getValor());
-                parcelasPorMes.get(i).setTotal(parcelasPorMes.get(i - 1)
+                monthlyInstallments.get(i).setTotal(monthlyInstallments.get(i - 1)
                         .getTotal()
-                        .add(parcelasPorMes.get(i)
-                                .getPoupanca()
+                        .add(monthlyInstallments.get(i)
+                                .getSavingRate()
                                 .multiply(value)
                                 .add(trTax.get(i).getValor()
                                         .movePointLeft(2)
@@ -83,7 +76,14 @@ public class InstallmentServiceImpl implements InstallmentService{
             }
         }
 
-        return parcelasPorMes;
+        return monthlyInstallments;
+    }
+
+    private List<BcbDto> getSavingRateTax(String taxType, LocalDate startDate, LocalDate endDate) {
+        return bcbClient.getTaxFromBcB(taxType,
+                "json",
+                startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
     }
 
 }
