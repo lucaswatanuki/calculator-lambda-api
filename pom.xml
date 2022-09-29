@@ -82,6 +82,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>calculator</finalName>
 	</build>
 
 </project>
