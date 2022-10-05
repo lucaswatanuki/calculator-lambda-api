@@ -3,6 +3,7 @@ package com.installments.calculator.handler;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
+import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
 import com.google.gson.Gson;
 import com.installments.calculator.config.SpringConfig;
 import com.installments.calculator.dto.Response;
@@ -14,9 +15,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainHandler extends AbstractHandler<SpringConfig> implements RequestHandler<APIGatewayProxyRequestEvent, Response> {
+public class MainHandler extends AbstractHandler<SpringConfig> implements RequestHandler<APIGatewayV2HTTPEvent, Response> {
     @Override
-    public Response handleRequest(APIGatewayProxyRequestEvent proxyRequestEvent, Context context) {
+    public Response handleRequest(APIGatewayV2HTTPEvent proxyRequestEvent, Context context) {
         InstallmentService service = getApplicationContext().getBean(InstallmentService.class);
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("Content-Type", "application/json");
