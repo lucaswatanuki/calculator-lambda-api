@@ -10,13 +10,13 @@ import java.math.BigDecimal;
 @Data
 public class InstallmentDto {
 
-    @JsonProperty("mes")
+    @JsonProperty(value = "mes")
     private String month;
-    @JsonProperty("ano")
+    @JsonProperty(value = "ano")
     private Integer year;
     private BigDecimal total;
-    @JsonProperty("poupanca")
+    @JsonProperty(value = "poupanca")
     private BigDecimal savingRate;
-    @JsonProperty("taxaReferencial")
+    @JsonProperty(value = "taxaReferencial")
     private BigDecimal tr;
 }
