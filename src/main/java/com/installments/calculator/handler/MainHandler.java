@@ -5,20 +5,13 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.google.gson.Gson;
 import com.installments.calculator.config.SpringConfig;
-import com.installments.calculator.dto.InstallmentDto;
 import com.installments.calculator.dto.Response;
 import com.installments.calculator.service.InstallmentService;
-import org.springframework.boot.json.GsonJsonParser;
-import org.springframework.boot.json.JacksonJsonParser;
-import org.springframework.cloud.function.json.GsonMapper;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MainHandler extends AbstractHandler<SpringConfig> implements RequestHandler<APIGatewayProxyRequestEvent, Response> {
