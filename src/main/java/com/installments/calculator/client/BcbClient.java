@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "bcbClient", url = "${bcb-url}", configuration = ClientConfiguration.class)
+@FeignClient(name = "bcbClient", url = "https://api.bcb.gov.br/dados/serie/", configuration = ClientConfiguration.class)
 public interface BcbClient {
 
     @GetMapping("bcdata.sgs.{codigo}/dados")
