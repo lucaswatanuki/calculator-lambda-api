@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CalculatorSuiteIT extends IntegrationTestSupport{
 
     @Test
-    public void shouldGetInstallments() {
+    public void shouldGetInstallmentsWithSuccess() {
         final LocalDate startTime = LocalDate.of(2021, 1, 1);
 
         final List<InstallmentDto> installments = this.calculatorClient
@@ -20,6 +20,8 @@ public class CalculatorSuiteIT extends IntegrationTestSupport{
 
         assertThat(installments).isNotNull();
         assertThat(installments.size()).isEqualTo(12);
-        assertThat(installments).extracting(InstallmentDto::getYear).containsOnly(2021);
+        assertThat(installments)
+                .extracting(InstallmentDto::getYear)
+                .containsOnly(2021);
     }
 }

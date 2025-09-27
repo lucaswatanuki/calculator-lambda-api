@@ -20,10 +20,12 @@ import java.util.stream.Collectors;
 public class InstallmentServiceImpl implements InstallmentService{
 
     private final BcbClient bcbClient;
-    private static final String TAXA_POUPANCA = "196";
-    private static final String TAXA_TR = "7811";
+    private static final String SAVINGS_TAX = "196";
+    private static final String RT = "7811";
+    private static final String START_END_DATE_PATTERN = "dd/MM/yyyy";
+    private static final String FORMAT = "json";
 
-    final Predicate<BcbDto> isFirstDay = x -> x.getData().getDayOfMonth() == 1;
+    final Predicate<BcbDto> isFirstDay = x -> x.getDate().getDayOfMonth() == 1;
 
     @Autowired
     public InstallmentServiceImpl(BcbClient bcbClient) {
@@ -34,42 +36,42 @@ public class InstallmentServiceImpl implements InstallmentService{
     public List<InstallmentDto> getInstallments(BigDecimal value, LocalDate startDate, int installments) {
         final LocalDate endDate = startDate.plusMonths(installments > 0 ? installments - 1 : 0);
 
-        final List<BcbDto> savingRateTax = getSavingRateTax(TAXA_POUPANCA, startDate, endDate);
-        final List<BcbDto> trTax = getSavingRateTax(TAXA_TR, startDate, endDate);
+        final List<BcbDto> savingRateTax = getSavingRateTax(SAVINGS_TAX, startDate, endDate);
+        final List<BcbDto> trTax = getSavingRateTax(RT, startDate, endDate);
 
         final List<InstallmentDto> monthlyInstallments = savingRateTax.stream()
                 .filter(isFirstDay)
                 .map(taxaDto -> InstallmentDto.builder()
-                        .year(taxaDto.getData().getYear())
-                        .month(taxaDto.getData().getMonth()
+                        .year(taxaDto.getDate().getYear())
+                        .month(taxaDto.getDate().getMonth()
                                 .getDisplayName(TextStyle.FULL, new Locale("pt", "BR"))
                                 .toUpperCase())
-                        .savingRate(taxaDto.getValor().movePointLeft(2))
+                        .savingRate(taxaDto.getValue().movePointLeft(2))
                         .build())
                 .collect(Collectors.toList());
 
         for (int i = 0; i < monthlyInstallments.size(); i++) {
             if (i == 0) {
                 monthlyInstallments.get(i)
-                        .setTr(trTax.get(0).getValor());
+                        .setTr(trTax.get(0).getValue());
                 monthlyInstallments.get(i).setTotal(value
                         .add(monthlyInstallments.get(i)
                                 .getSavingRate()
                                 .multiply(value)
                                 .add(trTax.get(0)
-                                        .getValor()
+                                        .getValue()
                                         .movePointLeft(2)
                                         .multiply(value)))
                         .setScale(2, RoundingMode.HALF_EVEN));
             } else {
                 monthlyInstallments.get(i)
-                        .setTr(trTax.get(i).getValor());
+                        .setTr(trTax.get(i).getValue());
                 monthlyInstallments.get(i).setTotal(monthlyInstallments.get(i - 1)
                         .getTotal()
                         .add(monthlyInstallments.get(i)
                                 .getSavingRate()
                                 .multiply(value)
-                                .add(trTax.get(i).getValor()
+                                .add(trTax.get(i).getValue()
                                         .movePointLeft(2)
                                         .multiply(value)))
                         .setScale(2, RoundingMode.HALF_EVEN));
@@ -81,9 +83,9 @@ public class InstallmentServiceImpl implements InstallmentService{
 
     private List<BcbDto> getSavingRateTax(String taxType, LocalDate startDate, LocalDate endDate) {
         return bcbClient.getTaxFromBcB(taxType,
-                "json",
-                startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
-                endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                FORMAT,
+                startDate.format(DateTimeFormatter.ofPattern(START_END_DATE_PATTERN)),
+                endDate.format(DateTimeFormatter.ofPattern(START_END_DATE_PATTERN)));
     }
 
 }

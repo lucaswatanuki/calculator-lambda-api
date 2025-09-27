@@ -10,10 +10,10 @@ import java.util.Map;
 @Data
 @Builder
 public class Response implements Serializable {
+
     Integer statusCode;
     Object body;
     Map<String, String> headers;
     Boolean isBase64Encoded;
-
 
 }

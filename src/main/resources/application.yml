@@ -2,7 +2,7 @@ spring:
   profiles:
     active: ${PROFILE}
 
-url: ${URL}
+url: ${URL:localhost:8080}
 bcb-url: https://api.bcb.gov.br/dados/serie/
 
 logging:
